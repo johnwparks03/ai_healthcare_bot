@@ -41,3 +41,40 @@ Start the backend server and listen on port 8000
 ```bash
   uvicorn main:app --reload --port 8000
 ```
+
+### Start the frontend
+
+Ensure you have Node (https://nodejs.org/en) and npm installed.
+
+Verify the installion using
+
+```bash
+node -v
+npm -v
+```
+
+Install Angular globally (v16 or later recommended)
+
+```bash
+npm install -g @angular/cli
+```
+
+Change to the Angular project directory from the root project directory
+
+```bash
+cd frontend/ai_healthcare_bot
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Start the web server
+
+```bash
+ng serve
+```
+
+You can now view the website at http://localhost:4200/
