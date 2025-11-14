@@ -2,14 +2,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+
 class InputData(BaseModel):
-    text: str
+    user_input: str
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "http://localhost:4200"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -20,13 +21,7 @@ def  predict(data: InputData):
 
     #Parse input data and do any pre-processing
     
-    return f"User Input: {data.text}\nDiagnosis: You have a cold."
-
-@app.get("/ping")
-def ping():
-    return {"status": "ok"}
-
-
-@app.get("/")
-def read_root():
-    return {"message": "Hello World"}
+    return {
+        "user_input": data.user_input,
+        "model_output": "You have a cold"
+    }
