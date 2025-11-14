@@ -1,0 +1,42 @@
+<div class="main">
+    <h1 class="header">AI Healthcare Bot</h1>
+
+    <div
+        *ngIf="(outputs$ | async)?.length == 0; else withResponse"
+        class="no-response"
+    >
+        <!-- <div class="no-response"> -->
+        <textarea
+            class="user_input"
+            [(ngModel)]="inputValue"
+            (keydown.enter)="onSend(); $event.preventDefault()"
+            placeholder="How are you feeling?"
+            autofocus="true"
+        ></textarea>
+        <!-- </div> -->
+    </div>
+
+    <ng-template #withResponse class="with-response">
+        <div class="with-response">
+            <div
+                *ngIf="outputs$ | async as outputs"
+                class="responses"
+                #responsesContainer
+            >
+                <div *ngFor="let o of outputs; let i = index" class="response">
+                    <div class="response_user_input">{{ o.user_input }}</div>
+                    <hr>
+                    <div class="response_model_output">{{ o.model_output }}</div>
+                </div>
+            </div>
+
+            <textarea
+                class="user_input"
+                [(ngModel)]="inputValue"
+                (keydown.enter)="onSend(); $event.preventDefault()"
+                placeholder="Anything else?"
+                autofocus="true"
+            ></textarea>
+        </div>
+    </ng-template>
+</div>
