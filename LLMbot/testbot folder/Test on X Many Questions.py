@@ -71,9 +71,7 @@ model = AutoModelForCausalLM.from_pretrained("medalpaca/medalpaca-7b",quantizati
 
 #Go ask the AI the question
 def GoAskAI(prompt, max_length=512)->str:
-    newprompt=("I want you to classify a disease/problem I have. When you answer, please follow the following format:"
-               "Classification: Your Answer"
-               "Justification: Why you think the answer is correct\n\n")+prompt
+    newprompt = f"I want you to classify a disease/problem I have. When you answer, please follow the following format:\nClassification: Your Answer\nJustification: Why you think the answer is correct\n\n" + prompt
     inputs = tokenizer(newprompt, return_tensors="pt", truncation=True, max_length=512)
     inputs = {k: v.to(device) for k, v in inputs.items()}
 
