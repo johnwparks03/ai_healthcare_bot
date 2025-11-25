@@ -1,0 +1,1 @@
+SELECT * FROM public."QuestionAnswer" ORDER BY RANDOM() LIMIT %s
