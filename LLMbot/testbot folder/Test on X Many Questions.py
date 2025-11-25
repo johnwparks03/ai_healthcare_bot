@@ -10,7 +10,7 @@ import psycopg2
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import torch
 import re
-from numpy import mean
+import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import torch.nn as nn
 import random_color_hex as RCH
@@ -154,7 +154,7 @@ def test_rag_system(num_samples=10):
         print(f"Predicted: {yhat[:80]}...")
         print(f"Score: {score:.3f}")
 
-    avg_score = mean(scores)
+    avg_score = np.mean(scores)
     print(f"\n{'=' * 80}")
     print(f"AVERAGE SCORE: {avg_score:.3f}")
     print(f"{'=' * 80}")
@@ -173,9 +173,19 @@ ModelScores=test_rag_system(num_samples=len(QA))
 print(f"Model Scored: {ModelScores}")
 
 #Plot
-plt.hist(ModelScores, bins=10, color=RCH.main(SuperLightColorsAllowed=False), edgecolor='black')
-plt.xlabel('Similarity Score')
+num_bins=10
+max_val=max(ModelScores)
+counts, bin_edges = np.histogram(ModelScores, bins=np.linspace(0, max_val, num_bins + 1))
+
+#Create labels for each bin (e.g., "0.00-0.14")
+bin_labels=[f'{bin_edges[i]:.2f}-{bin_edges[i+1]:.2f}' for i in range(len(counts))]
+
+for i, (label, count) in enumerate(zip(bin_labels, counts)):
+    plt.bar(label, count, color=RCH.main(SuperLightColorsAllowed=False))
+
+plt.xlabel('Score Range')
 plt.ylabel('Frequency')
-plt.grid(True)
 plt.title('Distribution of Semantic Similarity Scores')
+plt.xticks(rotation=45)
+plt.tight_layout()
 plt.show()
