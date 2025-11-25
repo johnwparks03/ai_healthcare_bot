@@ -170,6 +170,8 @@ Yi=[Answers for _, Answers in QA]
 # Run evaluation instead of single test
 ModelScores=test_rag_system(num_samples=len(QA))
 
+print(f"Model Scored: {ModelScores}")
+
 #Plot
 plt.hist(ModelScores, bins=10, color=RCH.main(SuperLightColorsAllowed=False), edgecolor='black')
 plt.xlabel('Similarity Score')
