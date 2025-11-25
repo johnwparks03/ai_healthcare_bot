@@ -7,6 +7,9 @@ Prints out the results'''
 """1- Get questions from database, lives on AWS"""
 
 import psycopg2
+from sentence_transformers import util
+import random_color_hex as RCH
+import matplotlib.pyplot as plt
 
 conn = None
 cur = None
@@ -34,7 +37,7 @@ try:
     for i, row in enumerate(QA, 1):
         print(f"Q{i}: {row[0]}")
         print(f"A{i}: {row[1]}\n")
-    print(QA)
+    print(f"All fetched questions and answers:\n{QA}")
 
 except psycopg2.Error as e:
     print(f"Error connecting to PostgreSQL: {e}")
@@ -47,3 +50,13 @@ finally:
 
 """2- Feed questions into LLM"""
 
+'''Since we dont have reasoning with the answers yet, we will tell the model to provide classification only. 
+Then, in a seperate line, we will provide the justification. 
+We will grade based off how good the classification is, and just hope that it carrys over for justifcation (at least for now)'''
+
+QuestionsNoAnswers=[questions for questions, _ in QA]
+AnswersNoQuestions=[Answers for _, Answers in QA]
+
+#Send questions to LLM
+#Get its answers
+#Use semantic similarity to grade the answers, make a plot of ROC curve
