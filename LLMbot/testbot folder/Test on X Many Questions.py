@@ -4,7 +4,7 @@ Feeds them into the LLM
 Uses x test to see how close the LLM's (medalpaca-7b or our model) answer is to the actual answer
 Prints out the results'''
 
-#Get questions from database, lives on AWS
+"""1- Get questions from database, lives on AWS"""
 
 import psycopg2
 
@@ -44,3 +44,6 @@ finally:
         cur.close()
     if conn is not None:
         conn.close()
+
+"""2- Feed questions into LLM"""
+
