@@ -1,3 +1,11 @@
+'''This script:
+Gets questions from database, lives on AWS
+Feeds them into the LLM
+Uses x test to see how close the LLM's (medalpaca-7b or our model) answer is to the actual answer
+Prints out the results'''
+
+#Get questions from database, lives on AWS
+
 import psycopg2
 
 conn = None
@@ -20,12 +28,13 @@ try:
         'SELECT * FROM public."QuestionAnswer" ORDER BY RANDOM() LIMIT %s',
         (AmtOfQuestions,)
     )
-    questions = cur.fetchall()
+    QA = cur.fetchall()
 
     print()
-    for i, row in enumerate(questions, 1):
+    for i, row in enumerate(QA, 1):
         print(f"Q{i}: {row[0]}")
         print(f"A{i}: {row[1]}\n")
+    print(QA)
 
 except psycopg2.Error as e:
     print(f"Error connecting to PostgreSQL: {e}")
