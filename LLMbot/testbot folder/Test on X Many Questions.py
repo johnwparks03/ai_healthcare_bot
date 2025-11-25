@@ -165,7 +165,14 @@ Yi=[Answers for _, Answers in QA]
 
 #Send questions to LLM
 #Get its answers
-#Use semantic similarity to grade the answers, make a plot of ROC curve
+#Use semantic similarity to grade the answers, make a plot showing how well answers correlated with ground truth
 
 # Run evaluation instead of single test
-test_rag_system(num_samples=len(QA))
+ModelScores=test_rag_system(num_samples=len(QA))
+
+#Plot
+plt.hist(ModelScores, bins=10, color=RCH.main(SuperLightColorsAllowed=False), edgecolor='black')
+plt.xlabel('Similarity Score')
+plt.ylabel('Frequency')
+plt.title('Distribution of Semantic Similarity Scores')
+plt.show()
