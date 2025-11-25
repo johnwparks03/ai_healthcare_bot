@@ -11,7 +11,7 @@ import psycopg2
 conn = None
 cur = None
 
-AmtOfQuestions = int(input("How many questions do you want? "))
+AmtOfQuestions = int(input("How many questions do you want? ")) #I think we can trust ourselves not to need error handeling here
 
 try:
     conn = psycopg2.connect(
