@@ -52,7 +52,7 @@ finally:
 
 '''Since we dont have reasoning with the answers yet, we will tell the model to provide classification only. 
 Then, in a seperate line, we will provide the justification. 
-We will grade based off how good the classification is, and just hope that it carrys over for justifcation (at least for now)'''
+We will grade based off how good the classification is, and just hope that it carrys over for justification (at least for now)'''
 
 QuestionsNoAnswers=[questions for questions, _ in QA]
 AnswersNoQuestions=[Answers for _, Answers in QA]
