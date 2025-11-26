@@ -23,7 +23,7 @@ print(f"Using device: {device}")
 conn = None
 cur = None
 
-AmtOfQuestions = int(input("How many questions do you want? ")) #I think we can trust ourselves not to need error handeling here
+AmtOfQuestions = 4963
 
 try:
     conn = psycopg2.connect(
@@ -69,15 +69,18 @@ tokenizer = AutoTokenizer.from_pretrained("medalpaca/medalpaca-7b", use_fast=Fal
 quantization_config = BitsAndBytesConfig(load_in_8bit=True,bnb_8bit_compute_dtype=torch.float16)
 model = AutoModelForCausalLM.from_pretrained("medalpaca/medalpaca-7b",quantization_config=quantization_config,device_map="auto")
 
-#Go ask the AI the question
-def GoAskAI(prompt, max_length=512)->str:
-    newprompt = f"I want you to classify a disease/problem I have. When you answer, please follow the following format:\nClassification: Your Answer\nJustification: Why you think the answer is correct\n\n" + prompt
+# Go ask the AI the question
+def GoAskAI(prompt, max_length=996) -> str:
+    newprompt = f"Symptoms: {prompt}\n\nClassification:"
+
     inputs = tokenizer(newprompt, return_tensors="pt", truncation=True, max_length=512)
     inputs = {k: v.to(device) for k, v in inputs.items()}
 
+    input_length = inputs['input_ids'].shape[1]
+
     with torch.no_grad():
         outputs = model.generate(
-            inputs.input_ids,
+            inputs['input_ids'],
             max_length=max_length,
             num_return_sequences=1,
             temperature=0.7,
@@ -85,8 +88,20 @@ def GoAskAI(prompt, max_length=512)->str:
             pad_token_id=tokenizer.eos_token_id
         )
 
-    ModelAnswer=tokenizer.decode(outputs[0], skip_special_tokens=True)
+    new_tokens = outputs[0][input_length:]
+    ModelAnswer = "Classification: " + tokenizer.decode(new_tokens, skip_special_tokens=True)
     return ModelAnswer
+
+
+def extract_classification(text):
+    """Extract text that comes after 'Classification: ' using regex"""
+    match = re.search(r'Classification:\s*(.+?)(?:\n|$)', text, re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+    else:
+        # If no classification found, return the full text
+        return text
+
 
 # Evaluation function
 def evaluate_answer(yhat, yi):
@@ -95,15 +110,7 @@ def evaluate_answer(yhat, yi):
     Extracts classification from both texts before comparison.
     Returns a score from 0 (completely different) to 1 (identical meaning).
     """
-    def extract_classification(text):
-        """Extract text that comes after 'Classification: ' using regex"""
-        match = re.search(r'Classification:\s*(.+?)(?:\n|$)', text, re.IGNORECASE)
-        if match:
-            return match.group(1).strip()
-        else:
-            # If no classification found, return the full text
-            return text
-        
+
     def get_embedding(text):
         """Get embedding from model's hidden states"""
         inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
@@ -120,8 +127,8 @@ def evaluate_answer(yhat, yi):
     yhat_classification = extract_classification(yhat)
     yi_classification = extract_classification(yi)
 
-    print(f"\n  Extracted prediction: {yhat_classification[:80]}...\n")
-    print(f"\n  Extracted reference: {yi_classification[:80]}...\n")
+    print(f"\n  Extracted prediction: {yhat_classification}\n")
+    print(f"\n  Extracted reference: {yi_classification}\n")
 
     yhat_emb = get_embedding(yhat_classification)
     yi_emb = get_embedding(yi_classification)
@@ -130,6 +137,7 @@ def evaluate_answer(yhat, yi):
     # Normalize to 0-1 range
     normalized_similarity = (similarity + 1) / 2
     return normalized_similarity
+
 
 # Test on multiple questions
 def test_rag_system(num_samples=10):
@@ -144,15 +152,18 @@ def test_rag_system(num_samples=10):
         yi = item[1]
 
         print(f"\n[{i + 1}/{num_samples}] Processing...")
+        print(f"  Question: {question}")
+
         yhat = GoAskAI(question)
+        yhat_classification = extract_classification(yhat)
+
+        print(f"  Model Answer: {yhat_classification}\n")
+        print(f"  Full Response: {yhat}\n")
+        print(f"  Real Answer: {yi}\n")
 
         score = evaluate_answer(yhat, yi)
         scores.append(score)
-
-        print(f"Q: {question[:80]}...")
-        print(f"Reference: {yi[:80]}...")
-        print(f"Predicted: {yhat[:80]}...")
-        print(f"Score: {score:.3f}")
+        print(f"  Score: {score:.3f}")
 
     avg_score = np.mean(scores)
     print(f"\n{'=' * 80}")
@@ -160,25 +171,26 @@ def test_rag_system(num_samples=10):
     print(f"{'=' * 80}")
     return scores
 
-TestInputs=[questions for questions, _ in QA]
-Yi=[Answers for _, Answers in QA]
 
-#Send questions to LLM
-#Get its answers
-#Use semantic similarity to grade the answers, make a plot showing how well answers correlated with ground truth
+TestInputs = [questions for questions, _ in QA]
+Yi = [Answers for _, Answers in QA]
+
+# Send questions to LLM
+# Get its answers
+# Use semantic similarity to grade the answers, make a plot showing how well answers correlated with ground truth
 
 # Run evaluation instead of single test
-ModelScores=test_rag_system(num_samples=len(QA))
+ModelScores = test_rag_system(num_samples=len(QA))
 
-print(f"Model Scored: {ModelScores}")
+print(f"Model Scored: {np.mean(ModelScores)}")
 
-#Plot
-num_bins=10
-max_val=max(ModelScores)
+# Plot
+num_bins = 10
+max_val = max(ModelScores)
 counts, bin_edges = np.histogram(ModelScores, bins=np.linspace(0, max_val, num_bins + 1))
 
-#Create labels for each bin (e.g., "0.00-0.14")
-bin_labels=[f'{bin_edges[i]:.2f}-{bin_edges[i+1]:.2f}' for i in range(len(counts))]
+# Create labels for each bin (e.g., "0.00-0.14")
+bin_labels = [f'{bin_edges[i]:.2f}-{bin_edges[i + 1]:.2f}' for i in range(len(counts))]
 
 for i, (label, count) in enumerate(zip(bin_labels, counts)):
     plt.bar(label, count, color=RCH.main(SuperLightColorsAllowed=False))
