@@ -15,7 +15,7 @@ import re
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import torch.nn as nn
-import random_color_hex as RCH
+import random_color_hex as RCH; RCH.JupyterReset()
 import matplotlib.pyplot as plt
 
 # Set device to GPU if available
