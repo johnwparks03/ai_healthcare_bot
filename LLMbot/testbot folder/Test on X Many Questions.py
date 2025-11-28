@@ -71,7 +71,7 @@ model = AutoModelForCausalLM.from_pretrained("medalpaca/medalpaca-7b",quantizati
 
 # Go ask the AI the question
 def GoAskAI(prompt, max_length=996) -> str:
-    newprompt = f"{prompt}"
+    newprompt = f"Symptoms: {prompt}\n\nDiagnosis:"
 
     inputs = tokenizer(newprompt, return_tensors="pt", truncation=True, max_length=512)
     inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -82,6 +82,7 @@ def GoAskAI(prompt, max_length=996) -> str:
         outputs = model.generate(
             inputs['input_ids'],
             max_length=max_length,
+            min_new_tokens=5,
             num_return_sequences=1,
             temperature=0.7,
             do_sample=True,
