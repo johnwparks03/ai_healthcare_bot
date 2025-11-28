@@ -71,7 +71,7 @@ model = AutoModelForCausalLM.from_pretrained("medalpaca/medalpaca-7b",quantizati
 
 # Go ask the AI the question
 def GoAskAI(prompt, max_length=996) -> str:
-    newprompt = f"Symptoms: {prompt}\n\nClassification:"
+    newprompt = f"{prompt}"
 
     inputs = tokenizer(newprompt, return_tensors="pt", truncation=True, max_length=512)
     inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -89,55 +89,11 @@ def GoAskAI(prompt, max_length=996) -> str:
         )
 
     new_tokens = outputs[0][input_length:]
-    ModelAnswer = "Classification: " + tokenizer.decode(new_tokens, skip_special_tokens=True)
-    return ModelAnswer
-
-
-def extract_classification(text):
-    """Extract text that comes after 'Classification: ' using regex"""
-    match = re.search(r'Classification:\s*(.+?)(?:\n|$)', text, re.IGNORECASE)
-    if match:
-        return match.group(1).strip()
-    else:
-        # If no classification found, return the full text
-        return text
-
+    return tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
 
 # Evaluation function
-def evaluate_answer(yhat, yi):
-    """
-    Compare predicted answer to reference answer using semantic similarity.
-    Extracts classification from both texts before comparison.
-    Returns a score from 0 (completely different) to 1 (identical meaning).
-    """
-
-    def get_embedding(text):
-        """Get embedding from model's hidden states"""
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
-        inputs = {k: v.to(device) for k, v in inputs.items()}
-
-        with torch.no_grad():
-            outputs = model(**inputs, output_hidden_states=True)
-            # Use mean of last hidden state as embedding
-            embeddings = outputs.hidden_states[-1].mean(dim=1)
-
-        return embeddings.cpu().numpy()
-
-    # Extract classification from both predicted and reference answers
-    yhat_classification = extract_classification(yhat)
-    yi_classification = extract_classification(yi)
-
-    print(f"\n  Extracted prediction: {yhat_classification}\n")
-    print(f"\n  Extracted reference: {yi_classification}\n")
-
-    yhat_emb = get_embedding(yhat_classification)
-    yi_emb = get_embedding(yi_classification)
-
-    similarity = cosine_similarity(yhat_emb, yi_emb)[0][0]
-    # Normalize to 0-1 range
-    normalized_similarity = (similarity + 1) / 2
-    return normalized_similarity
-
+def evaluate_answer(model_output, true_label):
+    return 1 if true_label.lower() in model_output.lower() else 0
 
 # Test on multiple questions
 def test_rag_system(num_samples=10):
@@ -155,10 +111,8 @@ def test_rag_system(num_samples=10):
         print(f"  Question: {question}")
 
         yhat = GoAskAI(question)
-        yhat_classification = extract_classification(yhat)
 
-        print(f"  Model Answer: {yhat_classification}\n")
-        print(f"  Full Response: {yhat}\n")
+        print(f"  Model Answer: {yhat}\n")
         print(f"  Real Answer: {yi}\n")
 
         score = evaluate_answer(yhat, yi)
@@ -175,11 +129,7 @@ def test_rag_system(num_samples=10):
 TestInputs = [questions for questions, _ in QA]
 Yi = [Answers for _, Answers in QA]
 
-# Send questions to LLM
-# Get its answers
-# Use semantic similarity to grade the answers, make a plot showing how well answers correlated with ground truth
-
-# Run evaluation instead of single test
+# Run evaluation
 ModelScores = test_rag_system(num_samples=len(QA))
 
 print(f"Model Scored: {np.mean(ModelScores)}")
@@ -189,15 +139,14 @@ num_bins = 10
 max_val = max(ModelScores)
 counts, bin_edges = np.histogram(ModelScores, bins=np.linspace(0, max_val, num_bins + 1))
 
-# Create labels for each bin (e.g., "0.00-0.14")
-bin_labels = [f'{bin_edges[i]:.2f}-{bin_edges[i + 1]:.2f}' for i in range(len(counts))]
+bin_labels = [f'{bin_edges[i]:.2f}-{bin_edges[i+1]:.2f}' for i in range(len(counts))]
 
 for i, (label, count) in enumerate(zip(bin_labels, counts)):
     plt.bar(label, count, color=RCH.main(SuperLightColorsAllowed=False))
 
 plt.xlabel('Score Range')
 plt.ylabel('Frequency')
-plt.title('Distribution of Semantic Similarity Scores')
+plt.title('Distribution of Model Accuracy')
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
