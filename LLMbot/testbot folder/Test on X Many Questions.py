@@ -23,7 +23,7 @@ print(f"Using device: {device}")
 conn = None
 cur = None
 
-AmtOfQuestions = int(input("How many questions would you like to get (NOTE: Default is 100, so probably that)? ")
+AmtOfQuestions = int(input("How many questions would you like to get (NOTE: Default is 100, so probably that)? "))
 
 try:
     conn = psycopg2.connect(
