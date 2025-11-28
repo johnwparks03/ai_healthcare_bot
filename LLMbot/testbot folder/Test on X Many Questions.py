@@ -5,7 +5,9 @@ Uses x test to see how close the LLM's (medalpaca-7b or our model) answer is to 
 Prints out the results'''
 
 """1- Get questions from database, lives on AWS"""
-
+import os
+os.environ["USE_TF"] = "0"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import psycopg2
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import torch
@@ -65,8 +67,7 @@ We will grade based off how good the classification is, and just hope that it ca
 
 tokenizer = AutoTokenizer.from_pretrained("medalpaca/medalpaca-7b", use_fast=False)
 
-# Configure 8-bit quantization
-quantization_config = BitsAndBytesConfig(load_in_8bit=True,bnb_8bit_compute_dtype=torch.float16)
+quantization_config = BitsAndBytesConfig(load_in_4bit=True,bnb_4bit_compute_dtype=torch.float16,bnb_4bit_quant_type="nf4")
 model = AutoModelForCausalLM.from_pretrained("medalpaca/medalpaca-7b",quantization_config=quantization_config,device_map="auto")
 
 # Go ask the AI the question
