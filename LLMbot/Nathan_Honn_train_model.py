@@ -53,7 +53,7 @@ try:
     train_amt = 10000
     cur.execute(
         'SELECT * FROM public."QuestionAnswer" ORDER BY RANDOM() LIMIT %s',
-        (train_amt,)
+        (train_amt,) 
     )
     QA = cur.fetchall()
 
@@ -151,23 +151,23 @@ model.print_trainable_parameters()
 print("\nConfiguring training arguments...")
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
-    num_train_epochs=9,
+    num_train_epochs=3,
     per_device_train_batch_size=4,
     per_device_eval_batch_size=4,
     gradient_accumulation_steps=4,
-    learning_rate=1e-5,
+    learning_rate=2e-4,
     warmup_steps=100,
     logging_steps=10,
-    eval_strategy="steps",
+    save_steps=100,
     eval_steps=100,
-    save_strategy="best",
+    eval_strategy="steps",
+    save_strategy="steps",
     load_best_model_at_end=True,
-    metric_for_best_model="loss",
     fp16=True,
     optim="paged_adamw_8bit",
     report_to="none",
     save_total_limit=3,
-    remove_unused_columns=False,
+    remove_unused_columns=False,  # Keep extra columns for evaluation
 )
 
 # Step 6: Initialize the trainer
