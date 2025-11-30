@@ -44,11 +44,11 @@ try:
     )
     QA = cur.fetchall()
 
-    print()
-    for i, row in enumerate(QA, 1):
-        print(f"Q{i}: {row[0]}")
-        print(f"A{i}: {row[1]}\n")
-    print(f"All fetched questions and answers:\n{QA}")
+    # print()
+    # for i, row in enumerate(QA, 1):
+    #     print(f"Q{i}: {row[0]}")
+    #     print(f"A{i}: {row[1]}\n")
+    # print(f"All fetched questions and answers:\n{QA}")
 
 except psycopg2.Error as e:
     print(f"Error connecting to PostgreSQL: {e}")
@@ -109,17 +109,17 @@ def test_rag_system(num_samples=10):
         question = item[0]
         yi = item[1]
 
-        print(f"\n[{i + 1}/{num_samples}] Processing...")
-        print(f"  Question: {question}")
+        # print(f"\n[{i + 1}/{num_samples}] Processing...")
+        # print(f"  Question: {question}")
 
         yhat = GoAskAI(question)
 
-        print(f"  Model Answer: {yhat}\n")
-        print(f"  Real Answer: {yi}\n")
+        # print(f"  Model Answer: {yhat}\n")
+        # print(f"  Real Answer: {yi}\n")
 
         score = evaluate_answer(yhat, yi)
         scores.append(score)
-        print(f"  Score: {score:.3f}")
+        # print(f"  Score: {score:.3f}")
 
     avg_score = np.mean(scores)
     print(f"\n{'=' * 80}")
