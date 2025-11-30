@@ -151,23 +151,23 @@ model.print_trainable_parameters()
 print("\nConfiguring training arguments...")
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
-    num_train_epochs=10,
+    num_train_epochs=9,
     per_device_train_batch_size=4,
     per_device_eval_batch_size=4,
     gradient_accumulation_steps=4,
-    learning_rate=1E-5,
+    learning_rate=1e-5,
     warmup_steps=100,
     logging_steps=10,
-    save_steps=100,
-    eval_steps=100,
     eval_strategy="steps",
-    save_strategy="steps",
+    eval_steps=100,
+    save_strategy="best",
     load_best_model_at_end=True,
+    metric_for_best_model="loss",
     fp16=True,
     optim="paged_adamw_8bit",
     report_to="none",
     save_total_limit=3,
-    remove_unused_columns=False,  # Keep extra columns for evaluation
+    remove_unused_columns=False,
 )
 
 # Step 6: Initialize the trainer
