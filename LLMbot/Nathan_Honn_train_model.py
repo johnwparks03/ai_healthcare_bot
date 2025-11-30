@@ -21,7 +21,7 @@ from trl import SFTTrainer
 
 # Configuration
 MODEL_NAME = "medalpaca/medalpaca-7b"
-CSV_PATH = "../HealthData/DiseaseClassificationKaggle/questions_and_answers.csv"
+CSV_PATH = "HealthData/DiseaseClassificationKaggle/questions_and_answers.csv"
 OUTPUT_DIR = "./fine_tuned_medalpaca"
 LORA_OUTPUT_DIR = "./medalpaca_lora_adapter"
 RESULTS_FILE = "./test_results.txt"
@@ -51,7 +51,7 @@ dataset = Dataset.from_pandas(df[['text', 'question', 'answer']])
 
 # Split into train, validation, and test sets (75-15-10 split)
 # First: separate test set (10%)
-train_val_test_split = dataset.train_test_split(test_size=0.10, seed=42)
+train_val_test_split = dataset.train_test_split(test_size=0.30, seed=42)
 test_dataset = train_val_test_split['test']
 train_val_dataset = train_val_test_split['train']
 
