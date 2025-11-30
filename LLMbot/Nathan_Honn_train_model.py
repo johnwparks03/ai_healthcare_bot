@@ -18,6 +18,7 @@ from transformers import (
 )
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from trl import SFTTrainer
+import psycopg2
 
 # Configuration
 MODEL_NAME = "medalpaca/medalpaca-7b"
@@ -31,9 +32,49 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
 # Step 1: Load and prepare the dataset
-print("Loading dataset from CSV...")
-df = pd.read_csv(CSV_PATH)
-print(f"Loaded {len(df)} question-answer pairs")
+# print("Loading dataset from CSV...")
+# df = pd.read_csv(CSV_PATH)
+# print(f"Loaded {len(df)} question-answer pairs")
+
+
+conn = None
+cur = None
+try:
+    conn = psycopg2.connect(
+        host="database-1.chsyuesiimuq.us-east-2.rds.amazonaws.com",
+        database="postgres",
+        user="postgres",
+        password="abc12345",
+        port="5432"
+    )
+
+    cur = conn.cursor()
+
+    cur.execute(
+        'SELECT * FROM public."QuestionAnswer" ORDER BY RANDOM()' 
+    )
+    QA = cur.fetchall()
+
+    # ---- Convert to DataFrame ----
+    colnames = [desc[0] for desc in cur.description]   # get column names from DB cursor
+    df = pd.DataFrame(QA, columns=colnames)
+    print("\nDataFrame Preview:")
+    print(df.head(), "\n")
+
+    print()
+    for i, row in enumerate(QA, 1):
+        print(f"Q{i}: {row[0]}")
+        print(f"A{i}: {row[1]}\n")
+    print(f"All fetched questions and answers:\n{QA}")
+
+except psycopg2.Error as e:
+    print(f"Error connecting to PostgreSQL: {e}")
+
+finally:
+    if cur is not None:
+        cur.close()
+    if conn is not None:
+        conn.close()
 
 
 # Format the data for instruction tuning
