@@ -151,7 +151,7 @@ model.print_trainable_parameters()
 print("\nConfiguring training arguments...")
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
-    num_train_epochs=6,
+    num_train_epochs=10,
     per_device_train_batch_size=4,
     per_device_eval_batch_size=4,
     gradient_accumulation_steps=4,
