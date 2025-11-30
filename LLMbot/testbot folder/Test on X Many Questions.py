@@ -5,7 +5,9 @@ Uses x test to see how close the LLM's (medalpaca-7b or our model) answer is to 
 Prints out the results'''
 
 """1- Get questions from database, lives on AWS"""
-
+import os
+os.environ["USE_TF"] = "0"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import psycopg2
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import torch
@@ -13,7 +15,7 @@ import re
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import torch.nn as nn
-import random_color_hex as RCH
+import random_color_hex as RCH; RCH.JupyterReset()
 import matplotlib.pyplot as plt
 
 # Set device to GPU if available
@@ -23,7 +25,7 @@ print(f"Using device: {device}")
 conn = None
 cur = None
 
-AmtOfQuestions = 4963
+AmtOfQuestions = int(input("How many questions would you like to get (NOTE: Default is 100, so probably that)? "))
 
 try:
     conn = psycopg2.connect(
@@ -65,8 +67,7 @@ We will grade based off how good the classification is, and just hope that it ca
 
 tokenizer = AutoTokenizer.from_pretrained("medalpaca/medalpaca-7b", use_fast=False)
 
-# Configure 8-bit quantization
-quantization_config = BitsAndBytesConfig(load_in_8bit=True,bnb_8bit_compute_dtype=torch.float16)
+quantization_config = BitsAndBytesConfig(load_in_4bit=True,bnb_4bit_compute_dtype=torch.float16,bnb_4bit_quant_type="nf4")
 model = AutoModelForCausalLM.from_pretrained("medalpaca/medalpaca-7b",quantization_config=quantization_config,device_map="auto")
 
 # Go ask the AI the question
