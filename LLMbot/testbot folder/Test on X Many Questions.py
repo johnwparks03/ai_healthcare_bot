@@ -137,18 +137,12 @@ ModelScores = test_rag_system(num_samples=len(QA))
 print(f"Model Scored: {np.mean(ModelScores)}")
 
 # Plot
-num_bins = 10
-max_val = max(ModelScores)
-counts, bin_edges = np.histogram(ModelScores, bins=np.linspace(0, max_val, num_bins + 1))
+correct = sum(ModelScores)
+incorrect = len(ModelScores) - correct
 
-bin_labels = [f'{bin_edges[i]:.2f}-{bin_edges[i+1]:.2f}' for i in range(len(counts))]
-
-for i, (label, count) in enumerate(zip(bin_labels, counts)):
-    plt.bar(label, count, color=RCH.main(SuperLightColorsAllowed=False))
-
-plt.xlabel('Score Range')
-plt.ylabel('Frequency')
-plt.title('Distribution of Model Accuracy')
-plt.xticks(rotation=45)
+plt.bar(['Right', 'Wrong'], [correct, incorrect], color=['#108f46','#e74c3c'])
+plt.xlabel('Result')
+plt.ylabel('Count')
+plt.title(f'Model Accuracy: {correct}/{len(ModelScores)} ({100*correct/len(ModelScores):.1f}%)')
 plt.tight_layout()
 plt.show()
