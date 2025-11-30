@@ -50,22 +50,24 @@ try:
 
     cur = conn.cursor()
 
+    train_amt = 10000
     cur.execute(
-        'SELECT * FROM public."QuestionAnswer" ORDER BY RANDOM()' 
+        'SELECT * FROM public."QuestionAnswer" ORDER BY RANDOM() LIMIT %s',
+        (train_amt,) 
     )
     QA = cur.fetchall()
 
     # ---- Convert to DataFrame ----
     colnames = [desc[0] for desc in cur.description]   # get column names from DB cursor
     df = pd.DataFrame(QA, columns=colnames)
-    print("\nDataFrame Preview:")
-    print(df.head(), "\n")
+    # print("\nDataFrame Preview:")
+    # print(df.head(), "\n")
 
-    print()
-    for i, row in enumerate(QA, 1):
-        print(f"Q{i}: {row[0]}")
-        print(f"A{i}: {row[1]}\n")
-    print(f"All fetched questions and answers:\n{QA}")
+    # print()
+    # for i, row in enumerate(QA, 1):
+    #     print(f"Q{i}: {row[0]}")
+    #     print(f"A{i}: {row[1]}\n")
+    # print(f"All fetched questions and answers:\n{QA}")
 
 except psycopg2.Error as e:
     print(f"Error connecting to PostgreSQL: {e}")
