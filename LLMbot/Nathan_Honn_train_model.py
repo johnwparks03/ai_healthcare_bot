@@ -22,7 +22,7 @@ import psycopg2
 
 # Configuration
 MODEL_NAME = "medalpaca/medalpaca-7b"
-CSV_PATH = "HealthData/DiseaseClassificationKaggle/questions_and_answers.csv"
+# CSV_PATH = "HealthData/DiseaseClassificationKaggle/questions_and_answers.csv"
 OUTPUT_DIR = "./fine_tuned_medalpaca"
 LORA_OUTPUT_DIR = "./medalpaca_lora_adapter"
 RESULTS_FILE = "./test_results.txt"
@@ -84,7 +84,6 @@ def format_instruction(row):
     """Format each Q&A pair as an instruction-following prompt."""
     instruction = f"Symptoms: {row['question']}\n Diagnosis: {row['answer']}"
     return instruction
-
 
 # Create formatted texts
 df['text'] = df.apply(format_instruction, axis=1)
