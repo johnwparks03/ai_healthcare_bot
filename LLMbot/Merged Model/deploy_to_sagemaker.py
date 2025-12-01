@@ -28,7 +28,7 @@ def deploy_model():
     predictor = huggingface_model.deploy(
         initial_instance_count=1,
         instance_type=INSTANCE_TYPE,
-        endpoint_name="medalpaca-endpoint",
+        endpoint_name="RedoneMedBot",
     )
 
     print(f"Endpoint deployed: {predictor.endpoint_name}")
@@ -47,4 +47,4 @@ def try_endpoint(predictor):
 
 if __name__ == "__main__":
     predictor = deploy_model()
-    test_endpoint(predictor)
+    try_endpoint(predictor)
