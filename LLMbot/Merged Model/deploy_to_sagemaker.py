@@ -35,7 +35,7 @@ def deploy_model():
     return predictor
 
 
-def test_endpoint(predictor):
+def try_endpoint(predictor):
     """Test the deployed endpoint"""
     response = predictor.predict({
         "question": "What are the symptoms of diabetes?",
