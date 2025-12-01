@@ -6,8 +6,8 @@ import sagemaker
 from sagemaker.huggingface import HuggingFaceModel
 
 # Configuration - UPDATE THESE
-S3_MODEL_PATH = "s3://your-bucket/models/model.tar.gz"  # Where you uploaded the model
-ROLE = "arn:aws:iam::YOUR_ACCOUNT_ID:role/SageMakerExecutionRole"  # Your SageMaker IAM role
+S3_MODEL_PATH = "s3://amazon-sagemaker-313078327074-us-east-2-ayialjl56dkvjd/ModelHouse/model.tar.gz"  # Where you uploaded the model
+ROLE = "arn:aws:iam::313078327074:role/service-role/AmazonSageMakerAdminIAMExecutionRole"  # Your SageMaker IAM role
 INSTANCE_TYPE = "ml.g4dn.xlarge"  # GPU instance (needed for 7B model)
 
 
@@ -16,9 +16,9 @@ def deploy_model():
     huggingface_model = HuggingFaceModel(
         model_data=S3_MODEL_PATH,
         role=ROLE,
-        transformers_version="4.37.0",
-        pytorch_version="2.1.0",
-        py_version="py310",
+        transformers_version="4.57.3",
+        pytorch_version="2.8.0+cu128",
+        py_version="py313",
     )
 
     # Deploy to endpoint
@@ -37,8 +37,8 @@ def test_endpoint(predictor):
     """Test the deployed endpoint"""
     response = predictor.predict({
         "question": "What are the symptoms of diabetes?",
-        "max_length": 256,
-        "temperature": 0.7
+        "max_length": 996,
+        "temperature": 1
     })
     print(f"Response: {response}")
 
