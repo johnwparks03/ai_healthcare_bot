@@ -7,7 +7,10 @@ def model_fn(model_dir, context=None):  # FIXED: Added context parameter
     """Load model from the model_dir"""
     print(f"Loading model from {model_dir}")
 
-    tokenizer = AutoTokenizer.from_pretrained(model_dir)
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_dir,
+        use_fast=False  # <-- important
+    )
     model = AutoModelForCausalLM.from_pretrained(
         model_dir,
         torch_dtype=torch.float16,
