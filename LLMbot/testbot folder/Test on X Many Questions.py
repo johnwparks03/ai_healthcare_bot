@@ -83,7 +83,7 @@ def GoAskAI(prompt, max_length=996) -> str:
         outputs = model.generate(
             inputs['input_ids'],
             max_length=max_length,
-            min_new_tokens=5,
+            min_new_tokens=3,
             num_return_sequences=1,
             temperature=0.7,
             do_sample=True,
@@ -109,7 +109,7 @@ def test_rag_system(num_samples=10):
         question = item[0]
         yi = item[1]
 
-        # print(f"\n[{i + 1}/{num_samples}] Processing...")
+        print(f"\n[{i + 1}/{num_samples}] Processing...")
         # print(f"  Question: {question}")
 
         yhat = GoAskAI(question)
@@ -120,6 +120,12 @@ def test_rag_system(num_samples=10):
         score = evaluate_answer(yhat, yi)
         scores.append(score)
         # print(f"  Score: {score:.3f}")
+        if i in [500, 1000, 1500, 2000, 2500]:
+            print(f"\n[{i + 1}/{num_samples}] Processing...")
+            avg_score = np.mean(scores)
+            print(f"\n{'=' * 80}")
+            print(f"AVERAGE SCORE: {avg_score:.3f}")
+            print(f"{'=' * 80}")
 
     avg_score = np.mean(scores)
     print(f"\n{'=' * 80}")
