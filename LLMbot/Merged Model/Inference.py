@@ -3,8 +3,8 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
-def model_fn(model_dir):
-    """Load model from the model_dir (where SageMaker extracts model.tar.gz)"""
+def model_fn(model_dir, context=None):  # FIXED: Added context parameter
+    """Load model from the model_dir"""
     print(f"Loading model from {model_dir}")
 
     tokenizer = AutoTokenizer.from_pretrained(model_dir)
@@ -54,7 +54,7 @@ def predict_fn(input_data, model_dict):
     with torch.no_grad():
         outputs = model.generate(
             inputs.input_ids,
-            max_length=max_length,
+            max_new_tokens=max_length,
             temperature=temperature,
             do_sample=True,
             top_p=0.9,
