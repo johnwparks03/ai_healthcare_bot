@@ -44,11 +44,11 @@ try:
     )
     QA = cur.fetchall()
 
-    print()
-    for i, row in enumerate(QA, 1):
-        print(f"Q{i}: {row[0]}")
-        print(f"A{i}: {row[1]}\n")
-    print(f"All fetched questions and answers:\n{QA}")
+    # print()
+    # for i, row in enumerate(QA, 1):
+    #     print(f"Q{i}: {row[0]}")
+    #     print(f"A{i}: {row[1]}\n")
+    # print(f"All fetched questions and answers:\n{QA}")
 
 except psycopg2.Error as e:
     print(f"Error connecting to PostgreSQL: {e}")
@@ -83,7 +83,7 @@ def GoAskAI(prompt, max_length=996) -> str:
         outputs = model.generate(
             inputs['input_ids'],
             max_length=max_length,
-            min_new_tokens=5,
+            min_new_tokens=3,
             num_return_sequences=1,
             temperature=0.7,
             do_sample=True,
@@ -110,16 +110,22 @@ def test_rag_system(num_samples=10):
         yi = item[1]
 
         print(f"\n[{i + 1}/{num_samples}] Processing...")
-        print(f"  Question: {question}")
+        # print(f"  Question: {question}")
 
         yhat = GoAskAI(question)
 
-        print(f"  Model Answer: {yhat}\n")
-        print(f"  Real Answer: {yi}\n")
+        # print(f"  Model Answer: {yhat}\n")
+        # print(f"  Real Answer: {yi}\n")
 
         score = evaluate_answer(yhat, yi)
         scores.append(score)
-        print(f"  Score: {score:.3f}")
+        # print(f"  Score: {score:.3f}")
+        if i in [500, 1000, 1500, 2000, 2500]:
+            print(f"\n[{i + 1}/{num_samples}] Processing...")
+            avg_score = np.mean(scores)
+            print(f"\n{'=' * 80}")
+            print(f"AVERAGE SCORE: {avg_score:.3f}")
+            print(f"{'=' * 80}")
 
     avg_score = np.mean(scores)
     print(f"\n{'=' * 80}")
@@ -137,18 +143,12 @@ ModelScores = test_rag_system(num_samples=len(QA))
 print(f"Model Scored: {np.mean(ModelScores)}")
 
 # Plot
-num_bins = 10
-max_val = max(ModelScores)
-counts, bin_edges = np.histogram(ModelScores, bins=np.linspace(0, max_val, num_bins + 1))
+correct = sum(ModelScores)
+incorrect = len(ModelScores) - correct
 
-bin_labels = [f'{bin_edges[i]:.2f}-{bin_edges[i+1]:.2f}' for i in range(len(counts))]
-
-for i, (label, count) in enumerate(zip(bin_labels, counts)):
-    plt.bar(label, count, color=RCH.main(SuperLightColorsAllowed=False))
-
-plt.xlabel('Score Range')
-plt.ylabel('Frequency')
-plt.title('Distribution of Model Accuracy')
-plt.xticks(rotation=45)
+plt.bar(['Right', 'Wrong'], [correct, incorrect], color=['#108f46','#e74c3c'])
+plt.xlabel('Result')
+plt.ylabel('Count')
+plt.title(f'Model Accuracy: {correct}/{len(ModelScores)} ({100*correct/len(ModelScores):.1f}%)')
 plt.tight_layout()
 plt.show()
