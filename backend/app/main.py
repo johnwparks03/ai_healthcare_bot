@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from talk_to_ai import model_predict
 
 
 class InputData(BaseModel):
@@ -16,12 +17,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/predict")
 def  predict(data: InputData):
-
-    #Parse input data and do any pre-processing
+    
+    model_output = model_predict(data.user_input)
     
     return {
         "user_input": data.user_input,
-        "model_output": "You have a cold"
+        "model_output": model_output
     }
