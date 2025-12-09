@@ -14,6 +14,20 @@ Go to the project directory
   cd ai_healthcare_bot
 ```
 
+## Training Data
+
+Our human-annotated medical question and answer dataset is stored in `HealthData`.
+
+## Training the Model
+
+We used `LLMbot/train_model.py` to fine-tune the model.
+
+## Fine-Tuned Model Weights
+
+`fine_tuned_medalpaca/checkpoint-1095/adapter_model.safetensors` contains the LoRA weights. You can apply these weights on top of the base model to recreate the fine-tuned model.
+
+## Experiment with the model
+
 ### Start the backend
 
 Ensure you have Python and pip installed
