@@ -26,6 +26,8 @@ We used `LLMbot/train_model.py` to fine-tune the model.
 
 `fine_tuned_medalpaca/checkpoint-1095/adapter_model.safetensors` contains the LoRA weights. You can apply these weights on top of the base model to recreate the fine-tuned model.
 
+`model.tar.gz` contains the complete model after merging the base model and the fine-tuned weights.
+
 ## Experiment with the model
 
 ### Start the backend
